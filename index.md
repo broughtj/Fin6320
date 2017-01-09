@@ -8,7 +8,7 @@
 
 - Course Dates: January 9 - April 28
 - Course Time: TR 7:30 - 8:45 AM
-- Course Room: HH 170
+- Course Room: HH 160
 - Lecture: T/Th online at time TBD
 - Mentoring sessions: TBD
 - [Course Canvas](https://usu.instructure.com/courses/443614)
