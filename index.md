@@ -1,3 +1,7 @@
+---
+layout: basic
+---
+
 # Finance 6320: Computational Finance
 
 
