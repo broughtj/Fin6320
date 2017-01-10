@@ -15,7 +15,9 @@ layout: basic
 - Course Room: HH 160
 - Lecture: T/Th online at time TBD
 - Mentoring sessions: TBD
+- [Slack Channel](https://fin6320.slack.com)
 - [Course Canvas](https://usu.instructure.com/courses/443614)
+- [Course Homepage](https://broughtj.github.io/Fin6320)
 
 
 ## Instructor Information
