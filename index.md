@@ -12,7 +12,7 @@ Welcome to Finance 6320: Computational Finance! Here you can find the [syllabus]
 
 ## Lectures
 
-* [Lecture 1](lectures/lecture1.html)
+* [Lecture 1](lectures/lecture1.pdf)
 
 
 
