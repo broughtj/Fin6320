@@ -1,8 +1,10 @@
 ---
-title: "Lecture 3: Computer Representation of Numbers"
+title: 'Lecture 3: Computer Representation of Numbers'
 author: "Tyler J. Brough"
 date: "January 16, 2017"
-output: ioslides_presentation
+output:
+  slidy_presentation: default
+  ioslides_presentation: default
 ---
 
 ## Finance 6320: Computational Finance
