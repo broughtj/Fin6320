@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<!--
+  Copyright 2010 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Original slides: Marcin Wichary (mwichary@google.com)
+  Modifications: Ernest Delgado (ernestd@google.com)
+                 Alex Russell (slightlyoff@chromium.org)
+
+  landslide modifications: Adam Zapletal (adamzap@gmail.com)
+                           Nicolas Perriault (nperriault@gmail.com)
+-->
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Finance 6320: Computational Finance</title>
+    <!-- Styles -->
+    
+    <link rel="stylesheet" media="print" href="file:///home/brough/anaconda3/lib/python3.5/site-packages/landslide/themes/default/css/print.css">
+    <link rel="stylesheet" media="screen, projection" href="file:///home/brough/USU/Reseach/Computing/Markdown/landslide/themes/light/css/screen.css">
+    
+    
+    <!-- /Styles -->
+    <!-- Javascripts -->
+    
+    <script type="text/javascript" src="file:///home/brough/anaconda3/lib/python3.5/site-packages/landslide/themes/default/js/slides.js"></script>
+    
+    
+    
+      <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+          tex2jax: { inlineMath: [['$','$'],['\\(','\\)']] }
+        });
+      </script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <!-- /Javascripts -->
+</head>
+<body>
+  <div id="blank"></div>
+  <div class="presentation">
+    <div id="current_presenter_notes">
+      <div id="presenter_note"></div>
+    </div>
+    <div class="slides">
+      
+      <!-- slide source: lecture3.md -->
+      <div class="slide-wrapper">
+        <div class="slide slide-1">
+          <div class="inner">
+            
+            <header><h1>Finance 6320: Computational Finance</h1></header>
+            
+            
+            <section><h3>January 17, 2017</h3>
+<p><br></p>
+<p>Today's Agenda:</p>
+<ol>
+<li>Review of installations, setup, etc. Also questions?</li>
+<li>Computer Representation of Numbers</li>
+<li>Algorithms</li>
+</ol></section>
+            
+          </div>
+          <div class="presenter_notes">
+            <header><h1>Presenter Notes</h1></header>
+            <section>
+            
+            </section>
+          </div>
+          <footer>
+            
+            <aside class="source">
+              Source: <a href="lecture3.md">lecture3.md</a>
+            </aside>
+            
+            <aside class="page_number">
+              1/6
+            </aside>
+          </footer>
+        </div>
+      </div>
+      
+      <!-- slide source: lecture3.md -->
+      <div class="slide-wrapper">
+        <div class="slide slide-2">
+          <div class="inner">
+            
+            <header><h2>Installation, Setup, Etc</h2></header>
+            
+            
+            <section><p><br>
+<br></p>
+<p>Questions?</p></section>
+            
+          </div>
+          <div class="presenter_notes">
+            <header><h1>Presenter Notes</h1></header>
+            <section>
+            
+            </section>
+          </div>
+          <footer>
+            
+            <aside class="source">
+              Source: <a href="lecture3.md">lecture3.md</a>
+            </aside>
+            
+            <aside class="page_number">
+              2/6
+            </aside>
+          </footer>
+        </div>
+      </div>
+      
+      <!-- slide source: lecture3.md -->
+      <div class="slide-wrapper">
+        <div class="slide slide-3">
+          <div class="inner">
+            
+            <header><h2>Computer Representation of Numbers</h2></header>
+            
+            
+            <section><p><br></p>
+<p>It is crucial to understand that computers <strong>DO NOT</strong> represent numbers the same way that we do as humans. </p>
+<p><br></p>
+<p>The Word <em>digital</em> in digital computer means that computers use binary digits, that is 0's and 1's to represent numbers. This is also known as base 2 representation.</p></section>
+            
+          </div>
+          <div class="presenter_notes">
+            <header><h1>Presenter Notes</h1></header>
+            <section>
+            
+            </section>
+          </div>
+          <footer>
+            
+            <aside class="source">
+              Source: <a href="lecture3.md">lecture3.md</a>
+            </aside>
+            
+            <aside class="page_number">
+              3/6
+            </aside>
+          </footer>
+        </div>
+      </div>
+      
+      <!-- slide source: lecture3.md -->
+      <div class="slide-wrapper">
+        <div class="slide slide-4">
+          <div class="inner">
+            
+            <header><h2>Two Guiding Principles</h2></header>
+            
+            
+            <section><p>Throughout the course we will repeat two guiding principles:</p>
+<p><br></p>
+<ol>
+<li><em>Computer numbers are not the same as real numbers, and the arithmetic operations on computer numbers are not exactly the same as those of ordinary arithmetic.</em></li>
+</ol>
+<p><br></p>
+<ol>
+<li><em>The form of a mathematical expression and the way the expression should be evaluated in actual practice may be quite different.</em></li>
+</ol>
+<p><br>
+<br></p>
+<p>Reference: <a href="https://goo.gl/knKqZ7">Gentle</a></p></section>
+            
+          </div>
+          <div class="presenter_notes">
+            <header><h1>Presenter Notes</h1></header>
+            <section>
+            
+            </section>
+          </div>
+          <footer>
+            
+            <aside class="source">
+              Source: <a href="lecture3.md">lecture3.md</a>
+            </aside>
+            
+            <aside class="page_number">
+              4/6
+            </aside>
+          </footer>
+        </div>
+      </div>
+      
+      <!-- slide source: lecture3.md -->
+      <div class="slide-wrapper">
+        <div class="slide slide-5">
+          <div class="inner">
+            
+            <header><h1>Computer Representation of Numbers</h1></header>
+            
+            
+            <section><h2>Numbers in Base 10</h2>
+<p>In the familiar decimal (base 10) system, numerical values are represented in units or powers of 10. </p>
+<p><br></p>
+<p>Now we can use the <strong><em>Basic Representation Theorem</em></strong>, which says we can represent a number, $k$, as</p>
+<p>$$
+k = \sum\limits_{j=0}^{m} a_{j} (10)^{j}
+$$</p>
+<p>for some unique integer $m$ and some set of integer coefficients ${a_{0}, \ldots, a_{m}}$.</p></section>
+            
+          </div>
+          <div class="presenter_notes">
+            <header><h1>Presenter Notes</h1></header>
+            <section>
+            
+            </section>
+          </div>
+          <footer>
+            
+            <aside class="source">
+              Source: <a href="lecture3.md">lecture3.md</a>
+            </aside>
+            
+            <aside class="page_number">
+              5/6
+            </aside>
+          </footer>
+        </div>
+      </div>
+      
+      <!-- slide source: lecture3.md -->
+      <div class="slide-wrapper">
+        <div class="slide slide-6">
+          <div class="inner">
+            
+            <header><h2>An Example</h2></header>
+            
+            
+            <section><p>As an example, consider the following:</p>
+<p>$$
+193 = 1 \ast (10)^{2} + 9 \ast (10)^{1} + 3 \ast (10)^0
+$$</p></section>
+            
+          </div>
+          <div class="presenter_notes">
+            <header><h1>Presenter Notes</h1></header>
+            <section>
+            
+            </section>
+          </div>
+          <footer>
+            
+            <aside class="source">
+              Source: <a href="lecture3.md">lecture3.md</a>
+            </aside>
+            
+            <aside class="page_number">
+              6/6
+            </aside>
+          </footer>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  
+  <div id="toc" class="sidebar hidden">
+    <h2>Table of Contents</h2>
+    <table>
+      <caption>Table of Contents</caption>
+      
+      <tr id="toc-row-1">
+        <th><a href="#slide1">Finance 6320: Computational Finance</a></th>
+        <td><a href="#slide1">1</a></td>
+      </tr>
+      
+        
+        <tr id="toc-row-2" class="sub">
+          <th><a href="#slide2">Installation, Setup, Etc</a></th>
+          <td><a href="#slide2">2</a></td>
+        </tr>
+        
+        <tr id="toc-row-3" class="sub">
+          <th><a href="#slide3">Computer Representation of Numbers</a></th>
+          <td><a href="#slide3">3</a></td>
+        </tr>
+        
+        <tr id="toc-row-4" class="sub">
+          <th><a href="#slide4">Two Guiding Principles</a></th>
+          <td><a href="#slide4">4</a></td>
+        </tr>
+        
+      
+      
+      <tr id="toc-row-5">
+        <th><a href="#slide5">Computer Representation of Numbers</a></th>
+        <td><a href="#slide5">5</a></td>
+      </tr>
+      
+        
+        <tr id="toc-row-6" class="sub">
+          <th><a href="#slide6">An Example</a></th>
+          <td><a href="#slide6">6</a></td>
+        </tr>
+        
+      
+      
+    </table>
+  </div>
+  
+  <div id="help" class="sidebar hidden">
+    <h2>Help</h2>
+    <table>
+      <caption>Help</caption>
+      <tr>
+        <th>Table of Contents</th>
+        <td>t</td>
+      </tr>
+      <tr>
+        <th>Exposé</th>
+        <td>ESC</td>
+      </tr>
+      <tr>
+        <th>Full screen slides</th>
+        <td>e</td>
+      </tr>
+      <tr>
+        <th>Presenter View</th>
+        <td>p</td>
+      </tr>
+      <tr>
+        <th>Source Files</th>
+        <td>s</td>
+      </tr>
+      <tr>
+        <th>Slide Numbers</th>
+        <td>n</td>
+      </tr>
+      <tr>
+        <th>Toggle screen blanking</th>
+        <td>b</td>
+      </tr>
+      <tr>
+        <th>Show/hide slide context</th>
+        <td>c</td>
+      </tr>
+      <tr>
+        <th>Notes</th>
+        <td>2</td>
+      </tr>
+      <tr>
+        <th>Help</th>
+        <td>h</td>
+      </tr>
+    </table>
+  </div>
+  <script>main()</script>
+</body>
+</html>
