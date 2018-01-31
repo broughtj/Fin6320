@@ -1,0 +1,127 @@
+---
+title: "The Sampling Distribution, The Posterior Distribution, and the Monte Carlo Method"
+output: html_notebook
+---
+
+
+## Introduction via Coin Flipping
+
+
+### First Off: Frequentism
+
+Let's get started with the simple case of coin flipping. 
+
+
+Let's start off using Monte Carlo simulation to understand the frequentist statistical logic. 
+
+
+```{r}
+R <- 50000 # number of replications
+N <- 1000
+theta.true <- 0.6
+theta.hat <- rep(0, R)
+
+for(i in 1:R)
+{
+  y.raw <- rbinom(N, 1, theta.true)
+  theta.hat[i] <- mean(y.raw)
+}
+
+theta.mu <- mean(theta.hat)
+theta.sd <- sd(theta.hat)
+curve(dnorm(x, theta.mu, theta.sd), type = "l", lwd = 3, col="blue")
+hist(theta.hat, breaks=100, add=TRUE, freq=FALSE)
+```
+
+There are two main desirable properties of "good" estimators:
+
+1. Unbiasedness: $E(\hat{\theta}) = \theta$
+2. Minimum variance among all other unbiased estimators
+
+BLUE!
+
+
+### The Bootstrap
+
+```{r}
+N <- 5000
+y.one <- rbinom(N, 1, theta.true)
+
+
+R <- 50000 # number of replications
+theta.hat <- rep(0, R)
+
+for(i in 1:R)
+{
+  y.raw <- sample(y.one, size=2500, replace=TRUE)
+  theta.hat[i] <- mean(y.raw)
+}
+
+theta.mu <- mean(theta.hat)
+theta.sd <- sd(theta.hat)
+curve(dnorm(x, theta.mu, theta.sd), type = "l", lwd = 3, col="red")
+hist(theta.hat, breaks=100, add=TRUE, freq=FALSE)
+```
+
+
+### The Bayesian Approach 
+
+The Bayesian approach relied on the Bayes' Rule:
+
+$$
+p(\theta | y) \propto p(y | \theta) p(\theta)
+$$
+A conjugate model in this case was to use:
+
+* For the prior: $Beta(\theta | a, b)$ 
+* For the likelihood: The $Bernoulli(y | \theta)$
+
+We are going use an uninformative Bayesian prior. That is we will set $a = b = 1$. 
+
+```{r}
+a.prior <- 1
+b.prior <- 1
+curve(dbeta(x, a.prior, a.prior), lwd = 3, type = "l", col="blue")
+```
+
+In our conjugate model, the posterior will also be $Beta(\theta | a^{\ast}, b^{\ast})$, where:
+
+* $a^\{\ast} = N_{1} + a$ where $a$ is the prior value, and $N_{1} = $ the number of heads obtained in our sample.
+
+* $b^{\ast} = N_{0} + b$ where $b$ is the prior value, and $N_{0} = $ the number of tails obtained in our sample. 
+
+```{r}
+N1 <- sum(y.one)
+N0 <- N - N1
+a.post <- N1 + a.prior
+b.post <- N0 + b.prior
+
+curve(dbeta(x, a.post, b.post), lwd = 3, type = "l", col = "green")
+hist(theta.hat, breaks=100, add=TRUE, freq=FALSE)
+```
+
+
+## Linear Regression 
+
+Let's move now to the more interesting case of the workhorse of econometrics: the linear regression model. 
+
+$$
+y_{i} = \alpha + \beta x_{i} + u_{i}
+$$
+
+
+```{r}
+# This represents the DGP
+N <- 10000
+a <- 1.258
+b <- 2.567
+x <- rnorm(N)
+u <- rnorm(N, 0, 1)
+y <- a + b * x + u
+
+# MN hands off the data to the econometrician
+fit <- lm(y ~ x)
+summary(fit)
+```
+
+
