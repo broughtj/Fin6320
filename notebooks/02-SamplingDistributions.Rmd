@@ -17,7 +17,7 @@ Let's start off using Monte Carlo simulation to understand the frequentist stati
 
 ```{r}
 R <- 50000 # number of replications
-N <- 1000
+N <- 1000 
 theta.true <- 0.6
 theta.hat <- rep(0, R)
 
@@ -116,7 +116,7 @@ N <- 10000
 a <- 1.258
 b <- 2.567
 x <- rnorm(N)
-u <- rnorm(N, 0, 1)
+u <- rnorm(N, 0, 5)
 y <- a + b * x + u
 
 # MN hands off the data to the econometrician
@@ -124,4 +124,23 @@ fit <- lm(y ~ x)
 summary(fit)
 ```
 
+Now let's set up a Monte Carlo simulation study to estimate the sampling distribution of $\hat{\beta}$. 
+
+```{r}
+R <- 10000
+beta.hat <- rep(0, R)
+
+for(i in 1:R)
+{
+	u <- rnorm(N, 0, 5)
+	y <- a + b * x + u
+	fit <- lm(y ~ x)
+	beta.hat[i] <- coef(fit)[2]
+}
+
+#beta.mu <- mean(beta.hat)
+#beta.sd <- mean(beta.hat)
+#curve(dnorm(x, beta.mu, beta.sd), lwd = 3, type = "l", col = "blue")
+hist(beta.hat, breaks = 50, freq = F)
+```
 
