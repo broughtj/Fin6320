@@ -1,0 +1,129 @@
+---
+title: 'The Autoregressive Model: Monte Carlo Simulation and the Parametric Bootstrap'
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+## The Autoregressive Model
+
+
+Let's start with a very simple time series model, The $AR(1)$ model:
+
+
+$$
+y_{t} = \alpha + \rho y_{t-1} + \epsilon_{t}
+$$
+
+Let's see how we can simulate a single path from this model.
+
+```{R}
+a <- 0.12
+p <- 0.85
+
+u.sigma <- 2.5
+M <- 5000
+y <- rep(0, M)
+u <- rnorm(M, 0, u.sigma)
+
+for(t in 2:M)
+{
+  y[t] = a + p * y[t-1] + u[t]
+}
+
+plot(y, lwd = 3, type = "l", col = "blue")
+```
+
+Now let's take these as given to some econometrician and see what happens when we apply the OLS estimator. 
+
+```{R}
+z <- y[2:M]
+x <- y[1:(M-1)]
+fit <- lm(z ~ x)
+summary(fit)
+```
+
+
+### Monte Carlo Simulation for the Sampling Distribution
+
+Let's set up the simulation below. This gives us a chance to learn about writing our own functions. 
+
+
+```{R}
+SimulateAR <- function(a, p, s, M)
+{
+  y <- rep(0, M)
+  u <- rnorm(M, 0, s)
+  y[1] <- rnorm(1)
+  
+  for(t in 2:M)
+  {
+    y[t] <- a + p * y[t-1] + u[t]  
+  }
+  
+  return(y)
+}
+
+EstimateAR <- function(y)
+{
+  N <- length(y)
+  z <- y[2:N]
+  x <- y[1:(N-1)]
+  fit <- lm(z ~ x)
+  p.hat <- coef(fit)[2]
+  
+  return(p.hat)
+}
+
+R <- 10000
+N <- 200
+p.hat <- rep(0, R)
+
+for(i in 1:R)
+{
+  y <- SimulateAR(a, p, u.sigma, N)
+  p.hat[i] <- EstimateAR(y)
+}
+
+hist(p.hat, breaks = 50)
+```
+
+
+### Bootstrapping the Sampling Distribution
+
+Now we will see how to use the parametric bootstrap to estimate the sampling distribution of $\hat{\rho}$.
+
+```{R}
+BootstrapAR <- function(y)
+{
+  N <- length(y)
+  z <- y[2:N]
+  x <- y[1:(N-1)]
+  fit <- lm(z ~ x)
+  resids <- fit$residuals
+  a.hat <- coef(fit)[1]
+  p.hat <- coef(fit)[2]
+  uhat <- sample(resids, size = N, replace=T)
+  y.art <- rep(0, N)
+  y.art <- sample(resids, 1)
+  
+  for(t in 2:N)
+  {
+    y.art[t] <- a.hat + p.hat * y.art[t-1] + uhat[t]
+  }
+  
+  return(y.art)
+}
+
+y.raw <- SimulateAR(a, b, u.sigma, 2000)
+B <- 10000
+p.hat.boot <- rep(0, B)
+
+for(b in 1:B)
+{
+  y.art <- BootstrapAR(y.raw)
+  p.hat.boot[b] <- EstimateAR(y.art)
+}
+
+hist(p.hat.boot, breaks = 50)
+```
