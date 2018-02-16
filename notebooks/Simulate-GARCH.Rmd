@@ -1,0 +1,105 @@
+---
+title: "Monte Carlo Simulation of GARCH Models in R"
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  pdf_document: default
+---
+
+## The GARCH Model
+
+These notes provide an introduction to the so-called GARCH(1,1) model of conditional varatility for financial asset returns. One of the most common empirical features of almost all financial data is time-varying varatility and varatility clustering. Periods of high (low) varatility tend be followed by periods of high (low) varatility. This dynamic changes and decays over time. The GARCH model, which stands for _generalized autoregressive conditional heteroskedasticity_ is simple econometric model to help model this dynamic and produce next-step forecasts for conditional varatility. 
+
+
+$$
+r_{t} = \varepsilon_{t} \sqrt{\omega + \alpha r_{t-1}^{2} + \beta \sigma_{t-1}^{2}}
+$$
+
+We can rewrite this in two equations as follows:
+
+$$
+\begin{aligned}
+r_{t} &= \varepsilon_{t} \sigma_{t} \\
+\sigma_{t}^{2} &= \omega + \alpha r_{t-1}^{2} + \beta \sigma_{t-1}^{2}
+\end{aligned}
+$$
+Where we can think of the $\varepsilon_{t} = \frac{r_{t}}{\sigma_{t}}$ as standardized residuals
+
+
+## Monte Carlo Simulation of the Basic GARCH Model
+
+- Step 0: estimate GARCH model via numerical MLE and obtain the estimates $\hat{\theta} = \{\hat{\omega}, \hat{\alpha}, \hat{\beta}\}$.
+- Step 1: fix an initial value for $\sigma_{0}$, and $r_{0}$, and set $t = 1$.
+- Step 2: take a random draw $z_{t}$ from a standard normal i.i.d process.
+- Step 3: multiply this by $\hat{\sigma}_{t}$ to obtain $\hat{r}_{t} = \hat{\sigma}_{t} z_{t}$.
+- Step 4: find $\hat{\sigma}_{t+1}$ from $\hat{\sigma}_{t}$ and $\hat{r}_{t}$ using the estimated GARCH model.
+- Step 5: return to step 2, replacing $t$ by $t+1$.
+
+
+### R Code for the Simulation
+
+```{R}
+# These are the "poplation" parameters chosen for the Monte Carlo study
+w <- 10^(-6)
+a <- 0.085
+b <- 0.905
+
+# Set up initial conditions
+R <- 1000
+z <- rnorm(R)
+r <- rep(0, R)
+s <- rep(0, R)
+
+# The main simulation loop
+for(t in 2:R)
+{
+  r[t] <- z[t-1] * sqrt(s[t-1])
+  s[t] <- w + a * (r[t-1] * r[t-1]) + b * s[t-1]
+}
+
+plot(r, lwd = 2, type = "l", col = "red")
+```
+
+Let's turn this code into a function that we can use to simulate a single GARCH path.
+
+```{R}
+SimulateGARCH <- function(theta, steps = 1000)
+{
+  w <- theta[[1]]
+  a <- theta[[2]]
+  b <- theta[[3]]
+  
+  z <- rnorm(steps)
+  r <- rep(0, steps)
+  s <- rep(0, steps)
+
+  for(t in 2:steps)
+  {
+    r[t] <- z[t-1] * sqrt(s[t-1])
+    s[t] <- w + a * (r[t-1] * r[t-1]) + b * s[t-1]
+  }
+  
+  values <- list(response = r, condvar = s)
+  return(values)
+}
+
+## Main Setup
+w <- 10^(-6)
+a <- 0.085
+b <- 0.905
+theta <- list(w, a, b)
+
+vals <- SimulateGARCH(theta, steps = 10)
+```
+
+
+Let's hand this simulated data off to the econometrician as though it were actual historical data. She will apply numerical MLE get obtain the estimated model.
+
+```{R}
+require(rugarch)
+vals <- SimulateGARCH(theta, steps = 3000)
+spec <- ugarchspec()
+fit <- ugarchfit(data = vals$response, spec = spec)
+coef(fit)
+```
