@@ -62,7 +62,7 @@ Use daily log returns on the S&P 500 index from January 2, 1995 to March 31, 200
 First estimate the GARCH(1,1) model using the `rugarch` package.
  
 ```{r}
-require{rugarch}
+require(rugarch)
 ```
 
 
