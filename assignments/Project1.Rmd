@@ -1,0 +1,81 @@
+---
+title: 'Project 1: Filtered Historical Simulation'
+output:
+  html_document: default
+  pdf_document: default
+---
+
+
+*(informally) due Thursday, March 8, 2018
+
+
+## Value-at-Risk
+
+Value-at-Risk (***VaR***) asks the question: "What loss level is such that we are X% confident it will not be exceeded in *N* business days".
+
+In this assignment you will calculate the VaR of a single long position in the S&P 500. You will need to calculate a $10$-day $99\%$ VaR. 
+
+
+## Filtered Historical Simulation
+
+In order to carry out the analysis for our VaR calculation we require a predictive distribution. We will create our predictive distribution via a semi-parametric computational method called ***Filtered Historical Simulation*** (FHS). 
+
+In FHS we begin with a GARCH model (we will use a GARCH(1,1)) model:
+
+$$
+\hat{\sigma}_{t+1}^{2} = \hat{\omega} + \hat{\alpha} \hat{r}_{t}^{2} + \hat{\beta} \hat{\sigma}_{t}^{2}
+$$
+
+
+FHS assumes that innovations are drawn from the standardized empirical return distribution. In other words, we assum the standardized innovations are given by
+
+$$
+\varepsilon_{t} = \frac{r_{t}}{\hat{\sigma}_{t}} 
+$$
+
+
+Where $r_{t}$ is the historical log return and $\hat{\sigma}$ is the estimated GARCH daily standard deviation at time $t$. Assume that initial values of $\hat{\sigma}_{0}$ and $r_{0}$ are given as the most recently observed quantities on the day prior to the analysis (i.e. these will be the work "data"). 
+
+To get the simulation pricess started we first compute the day-1 GARCH daily volatility as:
+
+$$
+\hat{\sigma}_{1}^{2} = \hat{\omega} + \hat{\alpha} \hat{r}_{0}^{2} + \hat{\beta} \hat{\sigma}_{0}^{2}
+$$
+
+Then the first simulated log return on day 1 is computed as $\hat{r}_{r} = \varepsilon_{1} \hat{\sigma}_{1}$ where a value for $\varepsilon_{1}$ is chosen by the statistical bootstrap from the sample of historical standardized innovations. 
+
+From here we simulate subsequent days as:
+
+$$
+\hat{\sigma}_{t+1}^{2} = \hat{\omega} + \hat{\alpha} \hat{r}_{t}^{2} + \hat{\beta} \hat{\sigma}_{t}^{2} \quad \mbox{with} \quad \hat{r}_{t} = \varepsilon_{t} \hat{\sigma}_{t} \quad \mbox{for} \quad t = 1, \ldots, h
+$$
+
+where $\varepsilon_{t}$ is drawn independently of $\varepsilon_{t}$ in the boostrap. The $h$-day simulated log return will then become $\hat{r}_{1} + \hat{r}_{2} + \cdots + \hat{r}_{h}$.
+
+Repeating this for thousands of simulations produces an empirical predictive distribution, and the $100\alpha\% h$-day FHS VaR is obtained as minus the $\alpha$ quantile of this distribution. 
+
+
+### Simulation Details
+
+Use daily log returns on the S&P 500 index from January 2, 1995 to March 31, 2008 to estimate the $100\alpha\%$ 10-day VaR using FHS based on a GARCH(1,1) model. For $\alpha = 0.001$, $0.05$, and $0.10$ compute the VaR and table the results.
+
+First estimate the GARCH(1,1) model using the `rugarch` package.
+ 
+```{r}
+require{rugarch}
+```
+
+
+Now carry out the FHS method.
+
+```{r}
+```
+
+
+And finally, calculate the VaR for each value of $\alpha$.
+
+```{r}
+alpha <- c(0.01, 0.05, 0.1)
+```
+
+
