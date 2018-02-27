@@ -12,17 +12,17 @@ Let's start with a very simple time series model, The $AR(1)$ model:
 
 
 $$
-y_{t} = \alpha + \rho y_{t-1} + \epsilon_{t}
+y_{t} = \alpha + \rho y_{t-1} + u_{t}
 $$
 
 Let's see how we can simulate a single path from this model.
 
 ```{R}
 a <- 0.12
-p <- 0.85
+p <- 0.50
 
 u.sigma <- 2.5
-M <- 5000
+M <- 100
 y <- rep(0, M)
 u <- rnorm(M, 0, u.sigma)
 
