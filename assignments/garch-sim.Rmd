@@ -1,0 +1,62 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+## Filterd Historical Simulation from a GARCH(1,1) Model
+
+First setup the data, etc.
+
+```{r}
+require(rugarch)
+## Open the data file
+setwd("C:\\Users\\brough\\USU\\Teaching\\Spring2018\\Jike\\Fin6320-Jike")
+raw.data <- read.csv("SP500.csv", header = T)
+```
+
+The next step is to calculate log-returns. 
+
+
+```{r}
+## Calculate log-returns
+ret <- diff(log(raw.data$SP500))
+```
+
+Then we must obtain parameter estimates via numerical MLE. We do this using the `rugarch` package. 
+
+```{r}
+## Use ugarchfit to estimate the parameters via numerical MLE
+sp <- ugarchspec()
+fit <- ugarchfit(ret, spec = sp)
+w <- coef(fit)[[4]]
+a <- coef(fit)[[5]]
+b <- coef(fit)[[6]]
+c(w, a, b)
+```
+
+Now that we have the estimated parameter values, we can set up the FHS. First we need the initial conditions ($r_{0}$, and $\sigma_{0}$).
+
+```{r}
+n <- length(ret)
+r.init <- ret[n]
+v.init <- fitted(fit)[n]
+c(r.init, v.init)
+```
+
+Now for the Filtered Historical Simulation algorithm.
+
+```{r}
+reps <- 10
+steps <- 10
+paths <- matrix(0, nrow = reps, ncol = steps+1)
+
+for(i in 1:reps)
+{
+  for(j in 1:steps)
+  {
+    
+  }
+}
+```
