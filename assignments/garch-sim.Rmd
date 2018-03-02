@@ -41,9 +41,18 @@ Now that we have the estimated parameter values, we can set up the FHS. First we
 ```{r}
 n <- length(ret)
 r.init <- ret[n]
-v.init <- fitted(fit)[n]
+v.cond <- as.numeric(fitted(fit))
+v.init <- v.cond[n]
 c(r.init, v.init)
 ```
+
+Before we can start the FHS algorithm, we need historical residuals. 
+
+```{r}
+resid <- ret / v.cond
+tail(resid)
+```
+
 
 Now for the Filtered Historical Simulation algorithm.
 
@@ -51,12 +60,18 @@ Now for the Filtered Historical Simulation algorithm.
 reps <- 10
 steps <- 10
 paths <- matrix(0, nrow = reps, ncol = steps+1)
+paths[,1] <- r.init
 
 for(i in 1:reps)
 {
-  for(j in 1:steps)
+  z <- sample(resid, size = steps, replace=T)
+  sigma <- v.init
+  for(j in 2:(steps+1))
   {
-    
+    sigma <- sqrt(w + a * (paths[i,j-1] * paths[i,j-1]) + b * (sigma * sigma))
+    paths[i,j] <- z[j-1] * sigma
   }
 }
+
+ret.pred <- apply(paths[,2:(steps+1)], 1, sum)
 ```
