@@ -1,0 +1,89 @@
+---
+title: "Engle-Granger Method Tutorial"
+author: "Tyler J. Brough"
+date: "April 6, 2017"
+output: html_document
+---
+
+## Introduction
+
+Please refer to your notes for the details of the Engle-Granger Method. I will not repeat those details here, but rather show you how to carry out some calculations in R.
+
+We will again use the S&P 500 data.
+
+```{R}
+raw.data <- read.csv("SandPHedge.csv", header=T)
+head(raw.data)
+attach(raw.data)
+```
+
+We will again calculate log-prices, and log-differenced prices:
+
+```{R}
+ln.spot <- log(Spot)
+ln.futures <- log(Futures)
+ln.spot.diff <- diff(ln.spot)
+ln.futures.diff <- diff(ln.futures)
+```
+
+### Testing for Unit Roots
+
+Using the URCA package we will test for Unit Roots.
+
+```{R}
+library(urca)
+
+# Test for unit roots in log-prices
+adf.s <- ur.df(y=ln.spot, type = "drift", selectlags = "BIC")
+summary(adf.s)
+
+adf.f <- ur.df(y=ln.futures, type = "drift", selectlags = "BIC")
+summary(adf.f)
+```
+
+From which it is easy to see that we fail to reject the null hypothesis that there is a Unit root in log-prices. 
+
+Let's now check log-price differences:
+
+```{R}
+adf.s.diff <- ur.df(y=ln.spot.diff, type = "drift", selectlags = "BIC")
+summary(adf.s.diff)
+
+adf.f.diff <- ur.df(y=ln.futures.diff, type = "drift", selectlags = "BIC")
+summary(adf.f.diff)
+```
+
+From which we can easily see that the null hypothesis of a Unit root for log-price differences is strongly rejected. 
+
+We conclude that log-prices are Unit root nonstationary, but log-price differences are stationary!
+
+### The Engle-Granger Two Step Procedure
+
+Now let's run the first cointegrating regression and get the residuals and plot them:
+
+```{R}
+fit <- lm(ln.spot ~ ln.futures)
+summary(fit)
+resid <- fit$residuals
+plot(resid, type = "b", lwd = 3, col = "blue", main = "Engle-Granger Step 1 Residuals")
+```
+
+Now let's test the residuals for the presence of a Unit root using the ur.df (Augmented Dickey-Fuller) test as above:
+
+```{R}
+adf.resid <- ur.df(resid, type = "drift", selectlags = "BIC")
+summary(adf.resid)
+```
+
+You can see that there is fairly strong evidence of stationarity between the S&P 500 and the Futures contract! That is, at all levels of significance we reject the null hypothesis of a Unit root. 
+
+We tentatively conclude that there is a cointegrating relationship between the S&P 500 and the S&P 500 Futures contract. 
+
+The cointegrating vector is obtained as $[1, - \hat{\beta}]$ from the first-step cointegrating regression above. So in this case: $\hat{\beta} = 0.99646$. So for all practical purposes the cointegrating vector is $[1, -1]$. 
+
+***Question:*** how is this estimate related to the minimum-variance hedge obtained from the standard procedure using OLS regression? 
+
+
+***NB:*** Step two in the Engle-Granger Procedure is to now use the residuals as a plug-in to the error-correction model. We will not do that here, and you need not do so for your midterm!
+
+Good luck!

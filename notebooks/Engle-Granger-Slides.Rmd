@@ -1,0 +1,149 @@
+---
+title: "Testing for Stationarity in Time Series"
+author: "Tyler J. Brough, Ph.D."
+date: "March 27, 2018"
+output: 
+  ioslides_presentation:
+    widescreen: true
+    smaller: true
+---
+
+
+## Introduction
+
+We will look at how to test for unit-root non-stationarity in financial data using the S&P 500 data. 
+
+```{R}
+raw.data <- read.csv("SandPhedge.csv", header=T)
+dt <- paste(as.character(raw.data$Date), "20", sep="-")
+raw.data$Date <- as.Date(dt, format = "%b-%y-%d")
+head(raw.data)
+attach(raw.data)
+```
+
+
+## Transforming Prices
+
+We will again calculate log-prices, and first-differenced log-prices (i.e. log-returns)
+
+```{R}
+ln.spot <- log(Spot)
+ln.futures <- log(Futures)
+ln.spot.diff <- diff(ln.spot)
+ln.futures.diff <- diff(ln.futures)
+```
+
+
+## Testing for Unit Roots
+
+Using the `urca` package we will test for unit roots using the Augmented Dickey-Fuller test. 
+
+```{R}
+library(urca)
+
+# Test for unit roots in spot & futures log-prices
+adf.s <- ur.df(y=ln.spot, type="drift", selectlags="BIC")
+adf.f <- ur.df(y=ln.futures, type = "drift", selectlags = "BIC")
+```
+
+
+## Log-Spot ADF Summary
+
+```{R}
+#summary(adf.s)
+show(adf.s)
+```
+
+Results: fail to reject the null of a unit root in spot log-prices.
+
+
+## Log-Futures ADF Summary
+
+```{R}
+#summary(adf.f)
+show(adf.f)
+```
+
+Results: fail to reject the null of a unit root in futures log-prices
+
+
+## Testing Log-Prices Differences
+
+Let's now check log-price differences:
+
+```{R}
+adf.s.diff <- ur.df(y=ln.spot.diff, type = "drift", selectlags = "BIC")
+adf.f.diff <- ur.df(y=ln.futures.diff, type = "drift", selectlags = "BIC")
+```
+
+
+## Spot Log-Returns Summary
+
+```{R}
+#summary(adf.s.diff)
+show(adf.s.diff)
+```
+
+Results: strongly reject the null of a unit root in spot log-returns.
+
+
+
+## Futures Log-Returns Summary
+
+```{R}
+#summary(adf.f.diff)
+show(adf.f.diff)
+```
+
+Results: strongly reject the null of a unit root in futures log-returns.
+
+
+## Conclusions
+
+* Spot and futures prices in logarithms are unit-root non-stationary
+* Spot and futures log-returns (first differenced log-prices) are weakly stationary
+
+
+## The Engle-Granger Two Step Procedure
+
+Now let's run the first cointegrating regression and get the residuals and plot them:
+
+```{R}
+fit <- lm(ln.spot ~ ln.futures)
+summary(fit)
+#coef(fit)
+```
+
+
+## Engle-Granger Continued
+
+```{R}
+resid <- fit$residuals
+plot(resid, type = "l", lwd = 3, col = "purple", main = "Engle-Granger Step 1 Residuals")
+```
+
+
+## Engle-Granger Continued
+
+Now let's test the residuals for the presence of a Unit root using the ur.df (Augmented Dickey-Fuller) test as above:
+
+```{R}
+adf.resid <- ur.df(resid, type = "drift", selectlags = "BIC")
+#summary(adf.resid)
+show(adf.resid)
+```
+
+## Engle-Granger Continued 
+
+You can see that there is fairly strong evidence of stationarity between the S&P 500 and the Futures contract! That is, at all levels of significance we reject the null hypothesis of a Unit root. 
+
+We tentatively conclude that there is a cointegrating relationship between the S&P 500 and the S&P 500 Futures contract. 
+
+The cointegrating vector is obtained as $[1, - \hat{\beta}]$ from the first-step cointegrating regression above. So in this case: $\hat{\beta} = 0.99646$. So for all practical purposes the cointegrating vector is $[1, -1]$. 
+
+***Question:*** how is this estimate related to the minimum-variance hedge obtained from the standard procedure using OLS regression? 
+
+
+***NB:*** Step two in the Engle-Granger Procedure is to now use the residuals as a plug-in to the error-correction model. We will not do that here, and you need not do so for your midterm!
+
+

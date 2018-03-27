@@ -1,0 +1,99 @@
+---
+title: "The Stationary Bootstrap"
+author: "Tyler J. Brough, Ph.D."
+date: "March 27, 2018"
+output: 
+  ioslides_presentation:
+    widescreen: true
+    smaller: true
+---
+
+## Introduction
+
+To begin let's simulate from a simple AR(1) model that is weakly stationary. 
+
+```{R}
+N <- 100
+e <- rnorm(100)
+y <- rep(0, N)
+rho <- 0.5
+y[1] <- e[1] * sqrt(1 / (1 - rho^2))
+
+for(t in 2:N)
+{
+    y[t] <- rho * y[t-1] + e[t]
+}
+```
+
+
+## Testing for Stationarity
+
+Let's now use the ADF test to test for unit-root non-stationarity (even though we know the time series is weakly stationary).
+
+```{R}
+library(urca)
+adf.y <- ur.df(y=y, type="drift", selectlags="BIC")
+#summary(adf.y)
+show(adf.y)
+```
+
+Results: STRONG rejection of unit root (so conclude that y is weakly stationary).
+
+
+## The Politis-Romano Stationary Bootstrap
+
+* A version of the bootstrap that is appropriate for (locally) weakly stationary time series data
+* Chooses an average block size of *m* rather than an exact block size
+* Block size is *exponentially distributed* with mean *m*
+
+
+## The Stationary Bootstrap Algorithm
+
+1. Let $q = \frac{1}{m}$
+2. Draw $u_{1}$ uniform on $1, \ldots, T$
+3. For $i = 1, 2, \ldots, t$ 
+    + Draw a uniform $v$ on $(0,1)$
+    + If $v \geq q$ then set $u_{i} = u_{i-1} + 1$
+        - If $u_{i} > T$ then set $u_{i} = u_{i} - T$
+    + If $v < q$ then draw $u_{i}$ uniform on $1, \ldots, T$
+    
+    
+## Programming the Stationary Bootstrap
+
+Let's see this in action for our simulated data. We will bootstrap the mean of the series just as a simple demonstration.
+
+```{R}
+m <- 10
+q <- 1 / m
+B <- 10000
+N <- length(y)
+ystar <- matrix(0, nrow=B, ncol=N)
+
+for(b in 1:B) {
+  u <- sample(1:N, size=N, replace=TRUE)
+  for(t in 2:N) {
+    v <- runif(1)
+    if(v < q) { u[t] <- sample(1:N, size=1) }
+    else {
+      u[t] <- u[t-1] + 1
+      if(u[t] > N) { u[t] <- u[t] - N }
+    }
+  }
+  ystar[b,] <- y[u]
+}
+
+c(mean(y), mean(apply(ystar, 1, mean)))
+```
+
+
+## `tseries` Package Method
+
+It turns out that the Stationary Bootstrap is part of the `tseries` package. It is written in `C` so it is pretty efficient.
+
+```{R}
+library(tseries)
+tsbootstrap(y, nb=B, statistic=mean, b=m, type="stationary")
+```
+
+
+***NB:*** If you omit the statistic, then you will get back a matrix with the bootstrapped paths!
