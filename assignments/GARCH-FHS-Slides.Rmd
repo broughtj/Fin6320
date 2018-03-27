@@ -59,7 +59,7 @@ vols[1] <- mean(devs)
 hist(vols, breaks = 50)
 ```
 
-## Running the Filtered Historical Simulation Algorithm
+## The Filtered Historical Simulation Algorithm
 
 We can now set up the *Filtered Historical Simulation*. Let's simulate one 10-day return path as follows:
 
