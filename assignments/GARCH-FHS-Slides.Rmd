@@ -1,0 +1,92 @@
+---
+title: "GARCH Estimation for Filtered Historical Simulation"
+author: "Tyler J. Brough, Ph.D."
+date: "March 26, 2018"
+output: ioslides_presentation
+---
+
+
+## Estimating GARCH Models for Filtered Historical Simulation
+
+First we will read in the data and calculate log-returns, the mean return and squared deviations in returns. 
+
+
+```{r, warning = FALSE, message=FALSE, tidy=TRUE}
+raw <- read.csv("../data/SP500.csv", header = T)
+raw$Date <- as.Date(as.character(raw$Date), format = "%d-%b-%y")
+ret <- diff(log(raw$SP500))
+raw$Ret <- c(0, ret)
+rbar <- mean(ret)
+devs <- (ret - rbar)^2
+```
+
+## Estimating the GARCH(1,1) Model
+
+We will use the `garch` function in the `tseries` package, and fit a $GARCH(1,1)$ model.
+
+```{r, results = "hide", warning= FALSE, message=FALSE, tidy=TRUE}
+library(tseries)
+fit <- garch(raw$Ret, order = c(1,1))
+theta <- coef(fit)
+w <- theta[1]
+a <- theta[2]
+b <- theta[3]
+```
+
+
+## `tseries` GARCH Methods
+
+There are some helpful methods belonging to the `garch` object in the `tseries` package. We will use the `residuals` method to get the residuals from the GARCH(1,1) model that we will use in the FHS. 
+
+\vspace{10mm}
+Results on the next page ...
+
+## 
+
+```{r, warning=FALSE, tidy=TRUE}
+resids <- residuals(fit)
+hist(resids, breaks = 50)
+```
+
+
+## GARCH Daily Conditional Volatilities
+
+We can then also get the conditional volatilities. 
+
+```{r, warning=FALSE, tidy=TRUE}
+vols <- fitted(fit)[, 1]
+vols[1] <- mean(devs)
+hist(vols, breaks = 50)
+```
+
+## Running the Filtered Historical Simulation Algorithm
+
+We can now set up the *Filtered Historical Simulation*. Let's simulate one 10-day return path as follows:
+
+```{r, warning=FALSE, tidy=TRUE}
+n <- length(raw$Ret)
+r2 <- raw$Ret
+s2 <- vols * vols
+r0 <- r2[n]
+s0 <- s2[n]
+```
+
+
+##
+
+```{r, warning=FALSE, tidy=T}
+s1 <- w + a * r0 + b * s0
+z <- sample(resids, size = 10, replace = T)
+r <- rep(0, 10)
+r[1] <- z[1] * sqrt(s1)
+st <- s1
+
+for(t in 2:10)
+{
+  st <- w + a * (r[t-1] * r[t-1]) + b * st
+  r[t] <- z[t] * sqrt(st)
+}
+
+r10 <- sum(r)
+print(r10)
+```
