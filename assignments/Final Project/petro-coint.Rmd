@@ -1,0 +1,25 @@
+---
+title: "Engle-Granger Analysis of NYMEX Petroleum Futures Data"
+author: "Tyler J. Brough"
+date: "April 5, 2018"
+output: html_document
+---
+
+## Introduction 
+
+We will examine the NYMEX futures data for petroleum contracts, specifically the ones for WTI Crude Oil and New York Harbour Heating Oil. 
+
+To match the Alizadeh & Nomikos analysis we will use the weekly data from August 1989 to September 20, 2006. 
+
+***NB:*** In the video I pulled daily data and worked with the full time series. This represents an update to that analysis. 
+
+## Data Analysis
+
+Let's first import the packages we will need to work with. 
+
+```{r}
+library(urca)
+library(tseries)
+library(zoo)
+```
+
