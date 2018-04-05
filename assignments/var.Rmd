@@ -1,0 +1,77 @@
+---
+title: "Value-at-Risk Computations"
+author: "Tyler J. Brough"
+date: "April 4, 2018"
+output: html_document
+---
+
+## Computations for Value-at-Risk (VaR) Metrics
+
+The analyst using the VaR metric for risk managment is interested in making the following kind of statement:
+
+> I am X percent certain there will not be a loss of more than V dollars in the next N days.
+
+We can see how this works with a *very* simple simulation. Let's say that the daily return is $0.007$ and the daily standard deviation is $0.02$. Further let's assume that returns are normally distributed. Then we can simulate returns and calculate VaR as follows:
+
+```{r}
+M <- 10000
+ret <- rnorm(M, mean=0.007, sd=0.02)
+hist(ret, breaks=50)
+```
+
+Then the VaR can be calculated. 
+
+```{r}
+var <- quantile(ret, c(0.01, 0.05, 0.10))
+var
+```
+
+Notice, that as of yet, these are returns. We would need a current portfolio dollar amount. 
+
+Also, notice that one way to view this is as obtaining a posterior predictive distribution. Then VaR is calculated as quantiles of that distribution.
+
+
+## Computational Approaches to the Predictive Density for VaR
+
+### Filtered Historical Simulation (FHS)
+
+One way of obtaining the predictive density is called Filtered Historical Simulation (FHS). This approach recognizes that volatility in financial markets is often time-varying. A simple time series model that accounts for this is the GARCH (Generalized Autoregressive Conditional Heteroskedacity) model. 
+
+FHS proceeds by fitting the GARCH model to historical data, then simulating from the fitted model via the statistical bootstrap (for iid data). 
+
+The GARCH(1,1) model is given as follows:
+
+$$
+\hat{\sigma}_{t}^{2} = \hat{\omega} + \hat{\alpha} r_{t-1}^{2} + \hat{\beta} \hat{\sigma}_{t-1}^{2}
+$$
+
+The "hat" parameters are obtained by maximum likelihood estimation (MLE) via a numerical optimization routine.
+
+Once we have a fitted GARCH model, we can obtain the model residuals as follows:
+
+$$
+\varepsilon_{t} = \frac{r_{t}}{\hat{\sigma}_{t}}
+$$
+
+These residuals then can be resampled via the iid bootstrap to produce new artificial return paths. If we repeat this process several thousand times we can obtain the predictive density and proceed with VaR calculations.
+
+For the SP500 data, please put your R code for the FHS project here:
+
+```{r}
+# Your code here
+```
+
+
+### The Stationary Bootstrap Approach
+
+An alternative approach to the FHS method is the Stationary Bootstrap due to Politis and Romano (JASA 1994). 
+
+This version of the bootstrap applies, not to iid data, but to time series data directly. The only requirement is that the time series data are (locally) weakly stationary (hence the name). 
+
+You have examples of these calculations in other documents. 
+
+Please put your solution to the VaR calculations using the Stationary Bootstrap approach below:
+
+```{r}
+# Your code here
+```

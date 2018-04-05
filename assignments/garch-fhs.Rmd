@@ -13,7 +13,7 @@ First we will read in the data and calculate log-returns, the mean return and sq
 
 
 ```{r, warning = FALSE}
-raw <- read.csv("../data/SP500.csv", header = T)
+raw <- read.csv("../data/excSP500.csv", header = T)
 raw$Date <- as.Date(as.character(raw$Date), format = "%d-%b-%y")
 ret <- diff(log(raw$SP500))
 raw$Ret <- c(0, ret)

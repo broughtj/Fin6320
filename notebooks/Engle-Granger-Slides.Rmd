@@ -19,6 +19,7 @@ dt <- paste(as.character(raw.data$Date), "20", sep="-")
 raw.data$Date <- as.Date(dt, format = "%b-%y-%d")
 head(raw.data)
 attach(raw.data)
+tail(raw.data)
 ```
 
 
@@ -42,16 +43,16 @@ Using the `urca` package we will test for unit roots using the Augmented Dickey-
 library(urca)
 
 # Test for unit roots in spot & futures log-prices
-adf.s <- ur.df(y=ln.spot, type="drift", selectlags="BIC")
-adf.f <- ur.df(y=ln.futures, type = "drift", selectlags = "BIC")
+adf.s <- ur.df(y=ln.spot, type="none", selectlags="BIC")
+adf.f <- ur.df(y=ln.futures, type = "none", selectlags = "BIC")
 ```
 
 
 ## Log-Spot ADF Summary
 
 ```{R}
-#summary(adf.s)
-show(adf.s)
+summary(adf.s)
+#show(adf.s)
 ```
 
 Results: fail to reject the null of a unit root in spot log-prices.
