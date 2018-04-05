@@ -2,7 +2,9 @@
 title: "Engle-Granger Analysis of NYMEX Petroleum Futures Data"
 author: "Tyler J. Brough"
 date: "April 5, 2018"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ## Introduction 
@@ -17,9 +19,110 @@ To match the Alizadeh & Nomikos analysis we will use the weekly data from August
 
 Let's first import the packages we will need to work with. 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 library(urca)
 library(tseries)
 library(zoo)
 ```
 
+We will now read in the data, fix the date formatting, and create `zoo` time series objects. 
+
+NB: Alizadeh et al refer to the WTI crude oil series as `CL` and to the heating oil series as `HO`, so we will adopt this naming convention as well.
+
+```{r, warning=FALSE, message=FALSE}
+# Set the working directory
+setwd("/home/brough/USU/Teaching/Spring2018/repos/Fin6320/assignments/Final Project")
+
+# Read in the raw data series with headers
+raw.cl <- read.csv("EIA NYMEX Futures Data - Cushing OK Contract 1 Weekly (WTI Crude Oil).csv", header=TRUE)
+head(raw.cl)
+tail(raw.cl)
+
+raw.ho <- read.csv("EIA NYMEX Futures Data - Heating Oil Contract 1 Weekly (NYMEX Heating Oil).csv", header=TRUE)
+head(raw.ho)
+tail(raw.ho)
+
+# Transform heating oil prices to $/bbl (with 42 gallons per barrel)
+raw.ho$Value <- 42 * raw.ho$Value
+```
+
+Now that we have the raw data read in, let's fix the date formatting. 
+
+```{r, warning=FALSE, message=FALSE}
+# Change the date formatting for CL and HO
+raw.cl$Date <- as.Date(raw.cl$Date, format="%Y-%m-%d")
+raw.ho$Date <- as.Date(raw.ho$Date, format="%Y-%m-%d")
+
+# Create zoo time series objects
+cl <- zoo(log(raw.cl$Value), raw.cl$Date)
+ho <- zoo(log(raw.ho$Value), raw.ho$Date)
+petro.full <- merge(cl, ho, all=FALSE)
+
+# Now subset the data from 08/01/1989 to 09/20/2006 (should be 894 observations)
+ind <- (index(petro.full) >= as.Date("1989-08-01") & index(petro.full) <= as.Date("2006-09-20"))
+petro.sub <- petro.full[ind]
+length(petro.sub$cl)
+length(petro.sub$ho)
+```
+
+Let's make a joint plot of the data for visual inspection.
+
+```{r, warning=FALSE, message=FALSE}
+plot(petro.sub, screens=1, lwd=2, type="l", col=c("orange", "purple"),
+     main="NYMEX Petroleum Futures Prices (CL & HO)",
+     xlab="Time", ylab="Log-Prices")
+```
+
+It's pretty easy to see the cointegration visually!
+
+### ADF Tests for Stationarity 
+
+#### ADF Tests in Log-Prices
+
+Now let's use the ADF test to test for stationarity in the log-prices of CL and HO.
+
+```{r, warning=FALSE, message=FALSE}
+adf.cl <- ur.df(petro.sub$cl, type = "none", selectlags = "BIC")
+summary(adf.cl)
+```
+
+We can see that for CL we fail to reject the null hypothesis of unit-root non-stationarity. 
+
+
+```{r, warning=FALSE, message=FALSE}
+adf.ho <- ur.df(petro.sub$ho, type = "none", selectlags = "BIC")
+summary(adf.ho)
+```
+
+We can also see that for HO we fail to reject the null hypothesis of unit-root non-stationarity. So far we have that both CL and HO contain unit roots.
+
+
+#### ADF Tests in Log-Returns
+
+Now let's use the ADF test to test for stationarity in the log-returns of CL and HO.
+
+```{r, warning=FALSE, message=FALSE}
+adf.ret.cl <- ur.df(diff(petro.sub$cl), type = "none", selectlags = "BIC")
+summary(adf.ret.cl)
+```
+
+After having taken log-price first differences (i.e. log-returns), we now strongly reject the null hypothesis of a unit root. We conclude that CL log-returns are weakly stationary. 
+
+
+```{r, warning=FALSE, message=FALSE}
+adf.ret.ho <- ur.df(diff(petro.sub$ho), type = "none", selectlags = "BIC")
+summary(adf.ret.ho)
+```
+
+Same for HO! We can now conduct the first step of the Engle-Granger method.
+
+### The Engle-Granger Test for Cointegration
+
+```{r, warning=FALSE, message=FALSE}
+fit <- lm(petro.sub$ho ~ petro.sub$cl)
+z <- fit$residuals
+adf.z <- ur.df(z, type = "none", selectlags = "BIC")
+summary(adf.z)
+```
+
+We quite strongly reject the null hypothesis that the residuals from the cointegrating regression of HO on CL contains a unit root. We therefore conclude that HO and CL are cointegrated. This allows us to proceed to the next step and fit the Vector Error Correction Model (VECM) for HO and CL. We will do this  in another document. See you then!
