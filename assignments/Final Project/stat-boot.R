@@ -37,3 +37,14 @@ d = del.0 - del.k
 m <- 10
 B <- 10000
 dstar <- tsbootstrap(d, nb=B, b=m, type="stationary")
+
+
+## Calculate the SPA test statistic
+dbar <- mean(d)
+dbar.b <- apply(dstar, 2, mean)
+n <- nrow(dstar)
+w.hat.2 <- mean((sqrt(n) * dbar.b - sqrt(n) * dbar)^2)
+t.spa <- max((sqrt(n) * dbar) / sqrt(w.hat.2), 0.0)
+
+
+
