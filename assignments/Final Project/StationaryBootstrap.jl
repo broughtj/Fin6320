@@ -44,24 +44,29 @@ function StationaryBootstrap(y::Array{Float64,1}, m::Int64, B::Int64)
 end
 
 
-function main()
-	## Read data and transfor to log-prices and spread
-	raw = readtable("petro.csv")
-	lnCL = log.(convert(Array, raw[:Crude]))
-	lnHO = log.(convert(Array, raw[:Heating]))
-	sprd = lnHO - lnCL
+## Read data and transfor to log-prices and spread
+raw = readtable("petro.csv")
+lnCL = log.(convert(Array, raw[:Crude]))
+lnHO = log.(convert(Array, raw[:Heating]))
+sprd = lnHO - lnCL
 
-	## Generate signals and calculate loss, relative loss
-	signals = MovingAverageStrategy(sprd)
-	long = 40
-	δ = -diff(signals .* sprd[(1+long):end])
-	δ0 = diff(lnCL[(1+long):end])
-	d = δ0 - δ
+## Generate signals and calculate loss, relative loss
+signals = MovingAverageStrategy(sprd)
+long = 40
+δ = -diff(signals .* sprd[(1+long):end])
+δ0 = diff(lnCL[(1+long):end])
+d = δ0 - δ
 
-	## Bootstrap the relative loss values
-	m = 10
-	B = 10000
-	dstar = StationaryBootstrap(d, m, B)
-	dstar
-end
+## Bootstrap the relative loss values
+m = 10
+B = 10000
+dstar = StationaryBootstrap(d, m, B)
+dstar
+
+## Calculate the SPA test statistic
+dbar = mean(d)
+dbar_b = mean(dstar,2)
+(bob,n) = size(dstar)
+w_hat2 = mean((sqrt(n) * dbar_b - sqrt(n) * dbar).^2)
+t_spa = max((sqrt(n) * dbar) / sqrt(w_hat2), 0.0)
 
