@@ -126,3 +126,38 @@ summary(adf.z)
 ```
 
 We quite strongly reject the null hypothesis that the residuals from the cointegrating regression of HO on CL contains a unit root. We therefore conclude that HO and CL are cointegrated. This allows us to proceed to the next step and fit the Vector Error Correction Model (VECM) for HO and CL. We will do this  in another document. See you then!
+
+
+### Estimating the Engle-Granger Error-Correction Model
+
+```{r}
+cl <- embed(as.numeric(petro.sub$cl), 4)
+ho <- embed(as.numeric(petro.sub$ho), 4)
+q <- embed(as.numeric(z), 4)[,2]
+x <- cbind(cl[,2:4], ho[,2:4], q)
+y1 <- data.frame(cbind(cl[,1], 1, x))
+names(y1) <- c("cl.diff", "const", "cl.diff.lag1", "cl.diff.lag2", "cl.diff.lag3", "ho.diff.lag1", "ho.diff.lag2", "ho.diff.lag3", "ecm")
+
+y2 <- data.frame(cbind(ho[,1], 1, x))
+names(y2) <- c("ho.diff", "const", "cl.diff.lag1", "cl.diff.lag2", "cl.diff.lag3", "ho.diff.lag1", "ho.diff.lag2", "ho.diff.lag3", "ecm")
+head(y1)
+head(y2)
+tail(y1)
+tail(y2)
+```
+
+
+Now we can run the regressions for each equation. First for the CL equation. 
+
+
+```{r}
+fit1 <- lm(cl.diff ~ const + cl.diff.lag1 + ho.diff.lag1 + ecm - 1, data = y1)
+summary(fit1)
+```
+
+Now for the HO equation.
+
+```{r}
+fit2 <- lm(ho.diff ~ const + cl.diff.lag1 + ho.diff.lag1 + ecm - 1, data = y2)
+summary(fit2)
+```
