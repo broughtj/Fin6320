@@ -93,7 +93,7 @@ function HansenSPATest(d::Array{Float64,1}, dstar::Array{Float64,2})
 	p_spa_c /= B
 	p_spa_u /= B
 
-	return (p_spa_l, p_spa_c, p_spa_u)
+	return (t_spa, p_spa_l, p_spa_c, p_spa_u)
 end
 
 function main()
@@ -117,5 +117,6 @@ function main()
 
 
 	## Now run Hansen's SPA test and get p-values
-	(pl, pc, pu) = HansenSPATest(d, dstar)
+	(tspa, pl, pc, pu) = HansenSPATest(d, dstar)
+	return (tspa, pl, pc, pu)
 end
